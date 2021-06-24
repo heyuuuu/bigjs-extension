@@ -1,0 +1,22 @@
+{
+  "name": "bigjs-extension",
+  "version": "0.0.1",
+  "description": "基于big.js封装的简易字符串表达式",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/heyuuuu/bigjs-extension.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/heyuuuu/bigjs-extension/issues"
+  },
+  "homepage": "https://github.com/heyuuuu/bigjs-extension#readme",
+  "dependencies": {
+    "big.js": "6.1.1"
+  }
+}
