@@ -22,16 +22,20 @@ function calculate(evaluate){
 		resourceArr.map((val,index) => {
 			const prveVal = peeloff(resourceArr[index - 2])
 			const operator = resourceArr[index - 1]
+			const currentval = peeloff(val)
 			if(isNum.test(prveVal)){
 				if(operator == "*" || operator == "/"){
 					resourceArr[index - 2] = "_"
 					resourceArr[index - 1] = "_"
+					if(prveVal == 0 || currentval == 0) {
+						return resourceArr[index] = '0'
+					}
 				}
 				if(operator == "*"){
-                    resourceArr[index] = new Big(prveVal).times(peeloff(val)).toString()
+                    resourceArr[index] = new Big(prveVal).times(currentval).toString()
 				}
 				if(operator == "/"){
-                    resourceArr[index] = new Big(prveVal).div(peeloff(val)).toString()
+                    resourceArr[index] = new Big(prveVal).div(currentval).toString()
 				}
 			}
 		})
