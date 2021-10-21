@@ -1,6 +1,9 @@
 import Big from "big.js"
 
-const isNum = /^{?([\d\.\-]+)}?$/
+// 占位符
+const placeholder = "_"
+// 是否是数字
+const isNum = /^{?(\-?[\d\.]+)}?$/
 
 function peelon(val){
     return '{' + val + '}'
@@ -13,50 +16,65 @@ function peeloff(val){
 
 // 计算器
 function calculate(evaluate){
-	const resourceArr = evaluate.match(/({\-?[\d\.]+})|([\d\.]+)|(\+|\-|\*|\/)/g)
-	if(resourceArr){
-		// 性能优化，避免单个数值进行计算
-		if(resourceArr.length === 1){
-			return evaluate
+	const analyzeArr = evaluate.match(/({\-?[\d\.]+})|([\d\.]+)|(\+|\-|\*|\/)/g)
+	// 对负数进行修复
+	analyzeArr.map((val,index,arr) => {
+		const prveVal = arr[index - 2]
+		const operator = arr[index - 1]
+		if(!isNum.test(prveVal) && operator == "-" && isNum.test(val)) {
+			const crrentVal = ("-" + peeloff(val)).replace("--", '')
+			arr[index - 1] = placeholder
+			arr[index] = peelon(crrentVal)
 		}
-		resourceArr.map((val,index) => {
-			const prveVal = peeloff(resourceArr[index - 2])
-			const operator = resourceArr[index - 1]
+	})
+	const primaryArr = analyzeArr.filter(v => v !== placeholder)
+	if(primaryArr){
+		// 性能优化，避免单个数值进行计算
+		if(primaryArr.length === 1){
+			return primaryArr[0]
+		}
+		// 优先计算
+		primaryArr.map((val,index,arr) => {
+			const prveVal = peeloff(arr[index - 2])
+			const operator = arr[index - 1]
 			const currentval = peeloff(val)
 			if(isNum.test(prveVal)){
 				if(operator == "*" || operator == "/"){
-					resourceArr[index - 2] = "_"
-					resourceArr[index - 1] = "_"
+					arr[index - 2] = placeholder
+					arr[index - 1] = placeholder
 					if(prveVal == 0 || currentval == 0) {
 						return resourceArr[index] = '0'
 					}
 				}
 				if(operator == "*"){
-                    resourceArr[index] = new Big(prveVal).times(currentval).toString()
+                    arr[index] = new Big(prveVal).times(currentval).toString()
 				}
 				if(operator == "/"){
-                    resourceArr[index] = new Big(prveVal).div(currentval).toString()
+                    arr[index] = new Big(prveVal).div(currentval).toString()
 				}
 			}
+			return arr[index]
 		})
-		const resourceArr1 = resourceArr.filter(v => v !== "_")
-		resourceArr1.map((val,index) => {
-			const prveVal = peeloff(resourceArr1[index - 2])
-			const operator = resourceArr1[index - 1]
+		// 次要计算
+		const secondaryArr = primaryArr.filter(v => v !== placeholder)
+		secondaryArr.map((val,index,arr) => {
+			const prveVal = peeloff(arr[index - 2])
+			const operator = arr[index - 1]
 			if(isNum.test(prveVal)){
 				if(operator == "+" || operator == "-"){
-					resourceArr1[index - 2] = "_"
-					resourceArr1[index - 1] = "_"
+					arr[index - 2] = placeholder
+					arr[index - 1] = placeholder
 				}
 				if(operator == "+"){
-                    resourceArr1[index] = new Big(prveVal).plus(peeloff(val)).toString()
+                    arr[index] = new Big(prveVal).plus(peeloff(val)).toString()
 				}
 				if(operator == "-"){
-                    resourceArr1[index] = new Big(prveVal).minus(peeloff(val)).toString()
+                    arr[index] = new Big(prveVal).minus(peeloff(val)).toString()
 				}
 			}
+			return arr[index]
 		})
-		return peelon(resourceArr1.pop())
+		return peelon(secondaryArr.pop())
 	}
 	return '0'
 }
