@@ -43,7 +43,7 @@ function calculate(evaluate){
 					arr[index - 2] = placeholder
 					arr[index - 1] = placeholder
 					if(prveVal == 0 || currentval == 0) {
-						return resourceArr[index] = '0'
+						return arr[index] = '0'
 					}
 				}
 				if(operator == "*"){
